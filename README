@@ -1,0 +1,11 @@
+The icefilms-boxee addon is a port of the icefilms-addon for XBMC.
+
+The project is divided in two.
+
+Part 1 - AddOn
+==============
+Contains the actual Boxee Box AddOn.
+
+Part 2 - Scraper
+================
+Contains php-scripts that can be installed on any php-capable web-server which provides simple RSS feeds based on the icefilms.info pages.
