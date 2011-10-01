@@ -1,0 +1,17 @@
+<app>
+  <id>com.googlecode.razorax-repo.icefilms-boxee</id>
+  <name>Ice4Boxee</name>
+  <version>0.1</version>
+  <description>IceFilms.Info Addon for Boxee Box[CR]v0.1 from scratch</description>
+  <thumb>http://razorax-repo.googlecode.com/svn/trunk/boxee/ice4boxee.png</thumb>
+  <repositoryId>com.googlecode.razorax-repo</repositoryId>
+  <repository>http://razorax-repo.googlecode.com/svn/trunk/boxee</repository>
+  <media>video</media>
+  <copyright></copyright>
+  <email></email>
+  <type>skin</type>
+  <startWindow>main</startWindow>
+  <platform>all</platform>
+  <minversion>0.9</minversion>
+  <test-app>true</test-app>
+</app>

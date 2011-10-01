@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<window type="dialog" id="14010">
+    <defaultcontrol always="true">103</defaultcontrol>
+	<allowoverlay>yes</allowoverlay>
+	<zorder>1</zorder>
+	<backgroundcolor>blue</backgroundcolor>
+    <onload lang="python"><![CDATA[
+from lib.waitdialog import *
+load()
+]]></onload>
+	<controls>
+        <control type="group"><!-- status -->
+        	<!-- 1280/2=640, 720/2=360 -->
+        	<posx>230</posx>
+        	<posy>70</posy>
+        	<width>820</width>
+        	<height>300</height>
+			<visible>Control.IsVisible(100)</visible>
+        	<control type="image">
+        		<width>820</width>
+        		<height>300</height>
+        		<texture border="8">bg.png</texture>
+        		<colordiffuse>FF080808</colordiffuse>
+        	</control>
+        	<control type="label" id="100"><!-- TITLE -->
+        		<posx>10</posx>
+        		<posy>5</posy>
+        		<width>800</width>
+        		<height>70</height>
+        		<font>font48b</font>
+        		<textcolor>white</textcolor>
+        		<label></label>
+        		<wrapmultiline>true</wrapmultiline>
+        		<align>center</align>
+        	</control>
+        	<control type="label" id="101"><!-- DESCRIPTION -->
+        		<posx>10</posx>
+        		<posy>65</posy>
+        		<width>800</width>
+        		<height>200</height>
+        		<font>font36b</font>
+        		<textcolor>white</textcolor>
+        		<label></label>
+        		<wrapmultiline>true</wrapmultiline>
+        		<align>center</align>
+        	</control>
+        	<control type="label" id="102"><!-- ETC -->
+        		<posx>10</posx>
+        		<posy>160</posy>
+        		<width>800</width>
+        		<height>30</height>
+        		<font>font28</font>
+        		<textcolor>grey</textcolor>
+        		<label></label>
+        		<align>center</align>
+                <aligny>center</aligny>
+        	</control>
+            <control type="button" id="103"><!-- CANCEL -->
+                <posx>330</posx>
+                <posy>220</posy>
+                <width>150</width>
+                <height>60</height>
+                <align>center</align>
+                <aligny>center</aligny>
+        		<textcolor>grey</textcolor>
+        		<focusedcolor>white</focusedcolor>
+                <label>Cancel</label>
+                <texturefocus border="8">btn_focus.png</texturefocus>
+                <texturenofocus border="8">btn.png</texturenofocus>
+                <textureclick border="8">btn_click.png</textureclick>
+                <onclick lang="python"><![CDATA[cancel()]]></onclick>
+            </control>
+            <!-- CLOCK -->
+            <control type="group">
+                <posx>30</posx>
+                <posy>30</posy>
+                <width>128</width>
+                <height>128</height>
+                <!-- background -->
+                <control type="image">
+                    <width>128</width>
+                    <height>128</height>
+                    <texture>clock3/clock2_full.png</texture>
+                    <colordiffuse>FF202020</colordiffuse><!-- FF202020-->
+                </control>
+                <!-- TARGET -->
+                <!-- 0-30 (dynamic) + 30-60 (static) -->
+                <control type="image" id="20">
+                    <width>128</width>
+                    <height>128</height>
+                    <texture>clock3/clock2_25.png</texture>
+                    <colordiffuse>FF790707</colordiffuse>
+                </control>
+            </control>
+        </control>
+	</controls>
+</window>

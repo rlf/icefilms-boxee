@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<window type="dialog" id="14020">
+	<allowoverlay>yes</allowoverlay>
+	<zorder>1</zorder>
+	<backgroundcolor>blue</backgroundcolor>
+	<controls>
+        <control type="group"><!-- status -->
+        	<!-- 1280/2=640, 720/2=360 -->
+        	<posx>230</posx>
+        	<posy>20</posy>
+        	<width>820</width>
+        	<height>80</height>
+			<visible>Control.IsVisible(100)</visible>
+        	<control type="image">
+        		<width>820</width>
+        		<height>80</height>
+        		<texture border="8">bg.png</texture>
+        		<colordiffuse>FF202020</colordiffuse>
+        	</control>
+        	<control type="label" id="100"><!-- STATUS -->
+        		<posx>10</posx>
+        		<posy>5</posy>
+        		<width>800</width>
+        		<height>70</height>
+        		<font>font24b</font>
+        		<textcolor>white</textcolor>
+        		<label></label>
+        		<wrapmultiline>true</wrapmultiline>
+        		<align>center</align>
+        	</control>
+        	<control type="image">
+        		<posx>330</posx>
+        		<posy>45</posy>
+        		<width>160</width>
+        		<height>32</height>
+        		<texture>stars_empty.png</texture>
+        		<visible>Control.IsVisible(600)</visible>
+        	</control>
+        	<control type="image" id="600">
+        		<posx>330</posx>
+        		<posy>45</posy>
+        		<width>160</width>
+        		<height>32</height>
+        		<texture>stars_00.png</texture>
+        		<visible>false</visible>
+        	</control>
+        </control>
+	</controls>
+</window>
