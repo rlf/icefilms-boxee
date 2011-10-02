@@ -55,6 +55,7 @@ class IceFilms:
         self.jobmanager.start() # No jobs to begin with...
         self.job = None
         self.jobcount = 0
+        self.item_cache = ItemCache()
         
     # PUBLIC ------------------------------------------------------------------
 
@@ -68,7 +69,8 @@ class IceFilms:
     def get_list(self, movie_list, type, genre, callback):
         self.abort()
         self.jobcount += 1
-        movie_list.SetItems(mc.ListItems())
+        key = '%s/%s' % (type, genre)
+        movie_list.SetItems(self.item_cache.get_items(key))
         self.job = FetchJob(self.jobcount, self, callback, movie_list, (type, genre))
         self.jobmanager.add_job(self.job)
         return True
@@ -105,6 +107,14 @@ class IceFilms:
 
     # PRIVATE -----------------------------------------------------------------
 
+    def __get_cache(self, key):
+        if key in self.item_cache:
+            return self.item_cache[key]
+        return mc.ListItems()
+
+    def _update_cache(self, key, items):
+        self.item_cache[key] = items
+        
     def __scrape_mirrorurl(self, source):
         ''' return a link to the mirrors '''
         match = re.compile('/membersonly/components/com_iceplayer/(.+?)" width=').findall(source)
@@ -231,7 +241,7 @@ class IceFilms:
         return url
     
     def _create_movie_item(self, movie):
-        print "create_movie_item: %s" % movie
+        #print "create_movie_item: %s" % movie
         item = mc.ListItem(mc.ListItem.MEDIA_VIDEO_FEATURE_FILM)
         poster = None
         if u'id' in movie:
@@ -259,8 +269,9 @@ class FetchJob(jobmanager.BoxeeJob):
         self.movie_list = movie_list
         self.args = args
         self.kwargs = {'type' : args[0], 'genre' : args[1]}
-        self.count = 12
-        self.offset = 0
+        self.cache_key = '%s/%s' % (args[0], args[1])
+        self.offset = len(movie_list.GetItems())
+        self.count = self.icefilm.item_cache.get_count(self.cache_key)
         self.aborted = False
         self.callback = callback
 
@@ -270,7 +281,7 @@ class FetchJob(jobmanager.BoxeeJob):
     def process(self):
         try:
             list = self.movie_list
-            if list.IsVisible() and self.offset < self.count:
+            if list.IsVisible() and (self.offset == False or self.offset < self.count):
                 # fetch next batch
                 self.kwargs['offset'] = self.offset
                 movies = self.icefilm.icerss.get_list(**self.kwargs)
@@ -281,17 +292,38 @@ class FetchJob(jobmanager.BoxeeJob):
                     for m in movies['movies']:
                         item = self.icefilm._create_movie_item(m)
                         items.append(item)
+                    self.icefilm.item_cache.update(self.cache_key, items, self.count)
                     mc.ShowDialogWait()
                     focus = list.GetFocusedItem()
                     list.SetItems(items)
                     list.SetFocusedItem(focus)
                     mc.HideDialogWait()
                 self.offset += 12
-                self.callback(self.offset, self.count)
-            else:
+                self.callback(min(self.offset, self.count), self.count)
+            if self.offset >= self.count:
                 print '%s: Completed [%d]' % (self.name, self.count)
                 self.icefilm.jobmanager.remove_job(self)
                 self.callback(not self.aborted)
         except Exception, e:
             traceback.print_exc(10)
             raise e
+
+class ItemCache:
+    ''' Cache of partially loaded items. '''
+    def __init__(self):
+        self.items = {}
+        self.sizes = {}
+
+    def update(self, key, items, count):
+        self.items[key] = items
+        self.sizes[key] = count
+
+    def get_count(self, key):
+        if key in self.sizes:
+            return self.sizes[key]
+        return False
+
+    def get_items(self, key):
+        if key in self.items:
+            return self.items[key]
+        return mc.ListItems()

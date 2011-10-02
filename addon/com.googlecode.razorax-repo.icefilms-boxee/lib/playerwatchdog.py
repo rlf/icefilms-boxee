@@ -28,11 +28,24 @@ class WatchDogJob(jobmanager.BoxeeJob):
         self.manager = manager
         self.player = player
         self.timeout = timeout
-        self.start_state = player.GetLastPlayerEvent()
+        #self.start_state = player.GetLastPlayerEvent()
         self.start_time = time.time()
         self.log("STARTED")
 
     def process(self):
+        ''' xbmc-player version '''
+        t = time.time()
+        diff = t - self.start_time
+        if self.player.isPlaying():
+            self.log("SUCCESS")
+            self.manager._callback(True)
+            return
+        if diff > self.timeout:
+            self.log("TIMEOUT")
+            self.manager._callback(False)
+
+    def process_old(self):
+        ''' boxee-player version '''
         t = time.time()
         diff = t - self.start_time
         state = self.player.GetLastPlayerEvent()

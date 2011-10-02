@@ -336,7 +336,7 @@ This window uses Conditional animations to show/hide controls.
                             <aligny>center</aligny>
                             <info>ListItem.Thumb</info>
                             <align>center</align>
-                            <colordiffuse>90FFFFFF</colordiffuse>
+                            <colordiffuse>FFF0F0F0</colordiffuse>
                             <aspectratio>keep</aspectratio>
                         </control>
                         <control type="label">
@@ -686,7 +686,16 @@ This window uses Conditional animations to show/hide controls.
                         <onclick lang="python"><![CDATA[settings.select_setting()]]></onclick>
                     </content>
                 </control>
-
+<!--
+                    <control type="image">
+                        <posx>15</posx>
+                        <posy>590</posy>
+                        <visible>true</visible>
+                        <width>1210</width>
+                        <height>25</height>
+                        <texture>progress/busy6.gif</texture>
+                    </control>
+                    -->
                 <control type="group"><!-- progress -->
                     <visible>Control.IsVisible(777)</visible>
                     <posx>15</posx>
@@ -697,12 +706,23 @@ This window uses Conditional animations to show/hide controls.
                         <texture>progress/100.png</texture>
                         <colordiffuse>9a505050</colordiffuse>
                     </control>
+                    <control type="multiimage" id="779">
+                        <visible>Control.IsVisible(777)</visible>
+                        <width>1210</width>
+                        <height>25</height>
+                        <imagepath>progress/busy</imagepath>
+                        <timeperimage>50</timeperimage>
+                        <fadetime>50</fadetime>
+                        <loop>yes</loop>
+                        <colordiffuse>8FF0F0F0</colordiffuse>
+                    </control>
                     <control type="image" id="777">
                         <visible>false</visible>
                         <animation type="VisibleChange" effect="fade" start="100" end="0" time="200"/>
                         <width>1210</width>
                         <height>25</height>
                         <texture>progress/100.png</texture>
+                        <fadetime>100</fadetime>
                     </control>
                     <control type="label" id="778">
                         <label></label>
@@ -713,12 +733,6 @@ This window uses Conditional animations to show/hide controls.
                         <font>font22b</font>
                         <textcolor>white</textcolor>
                         <shadowcolor>black</shadowcolor>
-                    </control>
-                    <control type="image" id="779">
-                        <visible>false</visible>
-                        <width>1210</width>
-                        <height>25</height>
-                        <texture>progress/busy.gif</texture>
                     </control>
                 </control>
             </control>

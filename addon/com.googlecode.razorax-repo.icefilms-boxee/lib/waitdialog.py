@@ -17,6 +17,7 @@ def load():
     ''' does nothing, for now '''
 
 def cancel():
+    ''' A feeble effort to allow the WaitDialog object to be a singleton '''
     print "cancelling wait..."
     if instance:
         instance.cancel()
@@ -61,7 +62,7 @@ class WaitDialog:
         self.callback(True, self.token)
 
     def update(self, wait_time):
-        print "__update(%s)" % wait_time
+        #print "__update(%s)" % wait_time
         if self.is_cancelled:
             return
         if wait_time >= self.secs:

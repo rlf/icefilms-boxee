@@ -1,3 +1,4 @@
+import urllib
 import traceback
 # main entry point for the icefilms-boxee app
 #
@@ -28,6 +29,7 @@ POPUP_GROUP_ID = 1000
 SOURCES_LIST_ID = 990
 PROGRESS_ID = 777
 PROGRESS_LABEL_ID = 778
+PROGRESS_BUSY_ID = 779
 
 # Title
 TITLE_LBL_ID = 10
@@ -59,13 +61,13 @@ def __get_icefilms():
     if not __icefilms:
         iceurl = mc.GetApp().GetLocalConfig().GetValue('icerss.url')
         if not iceurl:
-            mc.ShowDialogNotification('Invalid IceURL supplied, check Settings menu')
+            mc.ShowDialogOk('Invalid Settings', 'Invalid IceURL supplied, check Settings menu')
         else:
             ice = icerss.IceRSS(iceurl)
             __icefilms = icefilms.IceFilms(ice)
     return __icefilms
 
-def focus(control):
+def focus(control, focusIndex=None):
     ''' Tries a bit harder to set focus than the normal focus function. '''
     #print "focus(%s)" % control
     control.SetFocus()
@@ -81,12 +83,16 @@ def focus(control):
         print "ERROR: Bailed out trying to set focus to %s" % control
     # If control is a list... we better check the state of the current item...
     try:
-        focusIndex = control.GetFocusedItem()
+        if focusIndex == None: # it can be 0
+            focusIndex = control.GetFocusedItem()
         focusItem = control.GetItem(focusIndex)
-        if focusItem.GetProperty('state') == 'showing':
-            print "FIXING: Focused control should already have had focus..."
-            focusItem.SetProperty('state', '')
-    except:
+        if focusItem:
+            if focusItem.GetProperty('state') == 'showing':
+                print "FIXING: Focused control should already have had focus..."
+                focusItem.SetProperty('state', '')
+            control.SetFocusedItem(focusIndex)
+    except Exception,e:
+        print "Not a list: %s : %s" % (control, e)
         pass # It wasn't a list
     return control.HasFocus()
 
@@ -225,6 +231,13 @@ def create_part_item(type, part):
     item.SetThumbnail(thumb)
     return item
 
+def __show_list(list_id):
+    list = mc.GetActiveWindow().GetList(list_id)
+    index = list.GetFocusedItem()
+    item = list.GetItem(index)
+    item.SetProperty('state', 'showing')
+    __set_title(item)
+
 def __hide_list(list_id):
     mc.ShowDialogWait()
     list = mc.GetActiveWindow().GetList(list_id)
@@ -249,24 +262,23 @@ def select_genre():
     type = get_type()
     genre = get_genre()
     if not (type and genre):
-        mc.ShowDialogNotification('Type or genre is invalid')
+        mc.ShowDialogOk('Error', 'Type or genre is invalid')
         return
-
-    icefilms = __get_icefilms()
-    # TODO: pagination
-    list = mc.GetActiveWindow().GetList(GENRE_LIST_ID)
-    index = list.GetFocusedItem()
-    item = list.GetItem(index)
-    item.SetProperty('state', 'showing')
-    movie_list = mc.GetActiveWindow().GetList(MOVIES_LIST_ID)
-    focus(movie_list)
-    __set_title(item)
-    fetch_callback(0, 1)
-    if not icefilms.get_list(movie_list, type, genre, fetch_callback):
-        mc.ShowDialogNotification('No movies found')
-        hide_genre() #??
-    mc.HideDialogWait()
-    print "<< select_genre"
+    try:
+        icefilms = __get_icefilms()
+        if icefilms:
+            __show_list(GENRE_LIST_ID)
+            movie_list = mc.GetActiveWindow().GetList(MOVIES_LIST_ID)
+            focus(movie_list)
+            fetch_callback(0, 1)
+            if not icefilms.get_list(movie_list, type, genre, fetch_callback):
+                mc.ShowDialogNotification('No movies found')
+                hide_genre() #??
+        else:
+            hide_genre()
+    finally:
+        mc.HideDialogWait()
+        print "<< select_genre"
 
 def select_movie():
     mc.ShowDialogWait()
@@ -275,48 +287,53 @@ def select_movie():
     list = window.GetList(MOVIES_LIST_ID)
     movieitem = list.GetItem(list.GetFocusedItem())
 
-    ice = __get_icefilms()
-    url = movieitem.GetPath()
-    
-    sources = ice.get_sources(movieitem.GetPath())
-    if sources:
-        # alternating backgrounds
-        sourcelist = window.GetList(SOURCES_LIST_ID)
-        items = mc.ListItems()
-        # TODO: Sorting
-        sourcenum = 1
-        oldsource = 'initial'
-        for quality, parts in sources:
-            for part in parts:
-                item = create_part_item(quality, part)
-                if not part[1].startswith(oldsource):
-                    sourcenum += 1
-                else:
-                    # Same as previous - remove the icon
-                    item.SetProperty('type', '')
-                item.SetProperty('row', str(sourcenum % 2))
-                oldsource = part[1][:3]
-                item.Dump()
-                items.append(item)
-        sourcelist.SetItems(items)
-        movieitem.SetProperty('state', 'showing')
-        focus(window.GetControl(POPUP_GROUP_ID))
-        focus(window.GetControl(SOURCES_LIST_ID))
-    else:
-        mc.ShowDialogOk('Error Scraping Icefilms.Info', 'Could not find any sources for %s[CR]Either none matched your filters, icefilms changed design, or the site is down.[CR]Please try again later' % movieitem.GetLabel())
-    mc.HideDialogWait()
+    try:
+        ice = __get_icefilms()
+        if not ice:
+            return
+        url = movieitem.GetPath()
+
+        sources = ice.get_sources(url)
+        if sources:
+            # alternating backgrounds
+            sourcelist = window.GetList(SOURCES_LIST_ID)
+            items = mc.ListItems()
+            # TODO: Sorting
+            sourcenum = 1
+            oldsource = 'initial'
+            for quality, parts in sources:
+                for part in parts:
+                    item = create_part_item(quality, part)
+                    if not part[1].startswith(oldsource):
+                        sourcenum += 1
+                    else:
+                        # Same as previous - remove the icon
+                        item.SetProperty('type', '')
+                    item.SetProperty('row', str(sourcenum % 2))
+                    oldsource = part[1][:3]
+                    item.Dump()
+                    items.append(item)
+            sourcelist.SetItems(items)
+            movieitem.SetProperty('state', 'showing')
+            focus(window.GetControl(POPUP_GROUP_ID))
+            focus(window.GetControl(SOURCES_LIST_ID))
+        else:
+            mc.ShowDialogOk('Error Scraping Icefilms.Info', 'Could not find any sources for %s[CR]Either none matched your filters, icefilms changed design, or the site is down.[CR]Please try again later' % movieitem.GetLabel())
+    finally:
+        mc.HideDialogWait()
 
 def hide_popup():
     window = mc.GetActiveWindow()
     list = window.GetList(MOVIES_LIST_ID)
-    movieitem = list.GetItem(list.GetFocusedItem())
+    focusIndex = list.GetFocusedItem()
+    movieitem = list.GetItem(focusIndex)
     movieitem.SetProperty('state', '')
     # Somehow... this isn't enough - it's "reshown" once the player emerges
     window.GetControl(POPUP_GROUP_ID).SetVisible(False)
-    focus(list)
+    focus(list, focusIndex)
 
 def player_callback(success, token):
-    print "PLAYER CALLBACK: just for fun: %s" % mc.Http().GetHttpResponseCode()
+    print "PLAYER CALLBACK: (%s, %s)" % (success, token)
     if not success:
         mc.ShowDialogOk('Limit Reached', 'The player could not play the source[CR]This usually indicate that you have reached your download-limit at MegaUpload.[CR]Please try again later')
         
@@ -325,13 +342,19 @@ def waitdialog_callback(success, token):
     mc.HideDialogWait()
     if success:
         movieitem = mc.ListItem(mc.ListItem.MEDIA_VIDEO_FEATURE_FILM)
-        movieitem.SetPath(token[0])
+        url = token[0]
+        movieitem.SetPath(url)
         movieitem.SetTitle(token[1])
-        player = mc.Player(True)
-        playerwatchdog.PlayerWatchDog(player, player_callback, movieitem)
-        # TODO: Figure out how to get the cookie from the token into the player...
-        mc.GetActiveWindow().PushState() # A feeble attempt at getting (back) from the player to work...
-        player.Play(movieitem)
+        player = xbmc.Player( xbmc.PLAYER_CORE_DVDPLAYER )
+        # TODO: Make the timeout configurable? (Settings)
+        playerwatchdog.PlayerWatchDog(player, player_callback, movieitem, 15)
+        cookie = token[2]
+        if cookie:
+            # Add cookie to the player-header
+            # See http://forum.xbmc.org/showthread.php?t=77500
+            url = '%s|%s' % (url, 'Cookie=%s' % (urllib.quote_plus('%s=%s' % (cookie.name, cookie.value))))
+        print "Player.URL = %s" % url
+        player.play(url, movieitem)
 
 def fetch_callback(*vargs):
     if len(vargs) == 1: # Boolean
@@ -393,13 +416,8 @@ def __restore_menu(window, menu, is_showing=False):
                 focus_cmp = window.GetControl(children.values()[0])
     return focus_cmp
 
-__initialized = False
 def load():
     print "main.load"
-    global __initialized
-    if __initialized:
-        print "skipping load (we already are initialized)"
-        return
     settings.load()
     window = mc.GetActiveWindow()
     window.GetControl(1).SetVisible(False)
@@ -411,7 +429,6 @@ def load():
         __set_title('Main')
         window.GetList(MAIN_LIST_ID).SetVisible(True)
     window.GetControl(1).SetVisible(True)
-    __initialized = True
 
 if __name__ == '__main__':
     mc.ActivateWindow(14000)

@@ -7,7 +7,7 @@ import time
 from lib.razutils import *
 
 MEGAUPLOAD_URL = 'http://www.megaupload.com/'
-WAIT_TIMES = { 'none' : 46, 'free' : 26, 'premium' : 0}
+WAIT_TIMES = { 'none' : 45, 'free' : 25, 'premium' : 0}
 CACHE_TTL = 2*60 # 2 mins... is that "ok"?
 
 _MegaUpload__static_cache = {}
@@ -48,8 +48,8 @@ class MegaUpload:
 
         source, cookies = get_url(url, cookie=self.get_cookie())
         cookie = None # Cookie required when accessing the URL after the wait
-        #if cookies:
-        #    cookie = cookies[0]
+        if cookies:
+            cookie = cookies[0]
 
         if source.startswith('http://'): # premium redirect
             account_type = 'premium'
