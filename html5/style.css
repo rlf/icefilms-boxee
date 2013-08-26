@@ -1,0 +1,113 @@
+/** Common **/
+body {
+	background: #000 url(images/background.jpg) no-repeat top left;
+	background-color: black;
+	overflow: hidden;
+	color: white;
+	font-weight: bold;
+}
+section {
+	background: #444;
+	border-color: #666;
+	border-radius: 30px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 42pt;
+	font-weight: bold;
+	color: #ccc;
+	height: 148px;
+	text-align: left;
+	float: left;
+}
+article {
+	position: absolute;
+}
+img, #main_menu canvas {
+	padding: 0px 50px 0px 30px;
+	-background: red;
+	float: left;
+}
+#genre_menu canvas {
+	padding: 15px 20px 0px 15px;
+}
+a, a:visited, a:link {
+	display: block;
+	height: *;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 42pt;
+	font-weight: bold;
+	color: white;
+	text-decoration: none;
+	vertical-align: middle;
+}
+.focus {
+	background-color: rgba(200, 200, 255, 1);
+}
+article {
+	margin-top: 60px;
+}
+/** Main Menu **/
+#main_menu > section {
+	width: 1175px;
+	margin-top: 20px;
+}
+#main_menu > section > header {
+	vertical-align: middle;
+	overflow: visible;
+	padding-top: 40px;
+}
+/** Genre Menu **/
+#genre_menu > section {
+	width: 290px;
+	height: 190px;
+	float: left;
+	margin-top: 10px;
+	margin-left: 5px;
+}
+#genre_menu > section > a > img {
+	width: 256px;
+	height: 150px;
+	float: none;
+}
+#genre_menu > section > a > img {
+	padding: 20px;
+}
+/** Movies Menu **/
+article#movie_menu {
+	width: 440px; 
+}
+#movie_menu > section {
+	width: 520px;
+	height: 600px;
+}
+#movie_menu > section.muuhvie > a {
+	width: 130px;
+	height: 200px;
+	float: left;
+	display: block;
+}
+#movie_menu > section.muuhvie > a > canvas {
+	width: 110px;
+	height: 190px;
+	padding: 5px 10px 5px 10px;
+}
+/** Common Navigation **/
+.shown {
+	display: block;
+	opacity: 0.95;
+	-webkit-transform: translateX(0px);
+}
+.shown:focus {
+	opacity: 1;
+}
+.hide-left {
+	opacity: 0.3;
+	-webkit-transform: translateX(-1280px);
+}
+.hide-right {
+	opacity: 0.3;
+	-webkit-transform: translateX(1280px);
+}
+.hide-bottom {
+	opacity: 0.3;
+	-webkit-transform: translateY(720px);
+}

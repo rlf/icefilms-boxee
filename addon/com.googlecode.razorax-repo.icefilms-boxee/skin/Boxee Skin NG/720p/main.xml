@@ -745,7 +745,7 @@ This window uses Conditional animations to show/hide controls.
         	<height>20</height>
         	<font>font14b</font>
         	<textcolor>40FFFFFF</textcolor>
-        	<label>v0.1</label>
+        	<label>v0.2</label>
         </control>
 	</controls>
 </window>

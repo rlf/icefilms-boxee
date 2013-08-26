@@ -1,0 +1,24 @@
+IceFilms.Info Scraper
+=====================
+
+Description
+-----------
+The overall goal of the scraper functionality is to provide efficient RSS 
+feeds for use in addon writing for interfacing with the icefilms.info site.
+
+Roadmap
+=======
+* Cache actual html-pages (pre-scrape) from icefilms.info
+* Support more meta-info providers than imdbapi.com (test performance)
+* Providing a RSS feed for the scraped content (lists of movies)
+* Allowing for configuration of scraping frequency (i.e. max once a day).
+* Create an install script for initializing databases etc.
+
+Release Notes
+=============
+
+v0.1 - Initial release
+* Initial setup of database-tables + configuration
+* Scraping urls from icefilms.info
+* Caching generated pages for specific urls (+ count and offset)
+* Caching meta-data retrieved from imdbapi.com
